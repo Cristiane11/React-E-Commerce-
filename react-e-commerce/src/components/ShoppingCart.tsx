@@ -1,13 +1,13 @@
 import React from "react";
 import { useSelector, useDispatch } from "react-redux";
-import { RootState } from "../app/store";
+import type { RootState } from "../app/store";
 import { removeFromCart, clearCart } from "../features/cartSlice";
 
 const ShoppingCart: React.FC = () => {
   const items = useSelector((state: RootState) => state.cart.items);
   const dispatch = useDispatch();
 
-  const totalPrice = items.reduce((sum, item) => sum + item.price * item.count, 0);
+  const totalPrice = items.reduce((sum, item) => sum + (item.price ?? 0) * item.count, 0);
 
   const handleCheckout = () => {
     dispatch(clearCart());
@@ -21,11 +21,10 @@ const ShoppingCart: React.FC = () => {
         <>
           <ul>
             {items.map(item => (
-              <li key={item.id}>
-                <img src={item.image} alt={item.title} width={50} />
+            <li key={item.id}>
                 {item.title} x {item.count} - ${item.price.toFixed(2)}
                 <button onClick={() => dispatch(removeFromCart(item.id))}>Remove</button>
-              </li>
+            </li>
             ))}
           </ul>
           <p>Total Items: {items.reduce((sum, i) => sum + i.count, 0)}</p>
