@@ -7,11 +7,26 @@ import CategorySelect from "../components/CategorySelect";
 const Home: React.FC = () => {
   const [selectedCategory, setSelectedCategory] = useState("");
 
-  const { data: categories = [] } = useQuery("categories", getCategories);
-  const { data: products = [] } = useQuery(
-    ["products", selectedCategory],
-    () => selectedCategory ? getProductsByCategory(selectedCategory) : getProducts()
-  );
+  const { data: categories = [] } = useQuery({
+
+  queryKey: ['categories'],
+
+  queryFn: getCategories,
+
+});
+const { data: products = [] } = useQuery({
+
+  queryKey: ['products', selectedCategory],
+
+  queryFn: () =>
+
+    selectedCategory
+
+      ? getProductsByCategory(selectedCategory)
+
+      : getProducts(),
+
+});
 
   return (
     <div>

@@ -4,6 +4,7 @@ import { Provider } from "react-redux";
 import { store } from "./app/store";
 import Home from "./pages/Home";
 import ShoppingCart from "./components/ShoppingCart";
+import "./App.css";
 
 
 const queryClient = new QueryClient();
