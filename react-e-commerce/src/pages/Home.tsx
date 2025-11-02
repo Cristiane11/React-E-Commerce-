@@ -7,31 +7,45 @@ import CategorySelect from "../components/CategorySelect";
 const Home: React.FC = () => {
   const [selectedCategory, setSelectedCategory] = useState("");
 
-  const { data: categories = [] } = useQuery({
+  // Fetch categories
+  const {
+    data: categories = [],
+    isLoading: isLoadingCategories,
+    isError: isErrorCategories,
+  } = useQuery({
+    queryKey: ["categories"],
+    queryFn: getCategories,
+  });
 
-  queryKey: ['categories'],
+  // Fetch products (depends on selected category)
+  const {
+    data: products = [],
+    isLoading: isLoadingProducts,
+    isError: isErrorProducts,
+  } = useQuery({
+    queryKey: ["products", selectedCategory],
+    queryFn: () =>
+      selectedCategory ? getProductsByCategory(selectedCategory) : getProducts(),
+  });
 
-  queryFn: getCategories,
+  if (isLoadingCategories || isLoadingProducts) {
+    return <p>Loading products...</p>;
+  }
 
-});
-const { data: products = [] } = useQuery({
-
-  queryKey: ['products', selectedCategory],
-
-  queryFn: () =>
-
-    selectedCategory
-
-      ? getProductsByCategory(selectedCategory)
-
-      : getProducts(),
-
-});
+  if (isErrorCategories || isErrorProducts) {
+    return <p>Failed to load data. Please try again later.</p>;
+  }
 
   return (
     <div>
       <h1>Fake Store</h1>
-      <CategorySelect categories={categories} selectedCategory={selectedCategory} onChange={setSelectedCategory} />
+
+      <CategorySelect
+        categories={categories}
+        selectedCategory={selectedCategory}
+        onChange={setSelectedCategory}
+      />
+
       <ProductList products={products} />
     </div>
   );

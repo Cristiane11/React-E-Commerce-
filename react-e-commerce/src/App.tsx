@@ -1,23 +1,34 @@
 import React from "react";
-import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { Provider } from "react-redux";
-import { store } from "./app/store";
+import { BrowserRouter as Router, Routes, Route, Link } from "react-router-dom";
 import Home from "./pages/Home";
 import ShoppingCart from "./components/ShoppingCart";
-import "./App.css";
+import LoginForm from "./components/auth/LoginForm";
+import Register from "./components/auth/RegisterForm"; // if you have it
+import { auth } from "./firebase/firebaseConfig";
+import from "./App.css";
 
+const App: React.FC = () => {
+  return (
+    <Router>
+      <header style={{ padding: "10px", borderBottom: "1px solid #ccc" }}>
+        <nav>
+          <Link to="/" style={{ marginRight: "10px" }}>Home</Link>
+          <Link to="/cart" style={{ marginRight: "10px" }}>Cart</Link>
+          <Link to="/login" style={{ marginRight: "10px" }}>Login</Link>
+          <Link to="/register">Register</Link>
+        </nav>
+      </header>
 
-const queryClient = new QueryClient();
-
-const App: React.FC = () => (
-  <Provider store={store}>
-    <QueryClientProvider client={queryClient}>
-      <div className="app">
-        <Home />
-        <ShoppingCart />
-      </div>
-    </QueryClientProvider>
-  </Provider>
-);
+      <main style={{ padding: "20px" }}>
+        <Routes>
+          <Route path="/" element={<Home />} />
+          <Route path="/cart" element={<ShoppingCart />} />
+          <Route path="/login" element={<LoginForm />} />
+          <Route path="/register" element={<Register />} />
+        </Routes>
+      </main>
+    </Router>
+  );
+};
 
 export default App;
