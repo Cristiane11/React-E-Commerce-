@@ -1,18 +1,27 @@
 import { db } from "./firebaseConfig";
-import { doc, getDoc, updateDoc, deleteDoc } from "firebase/firestore";
+import { doc, setDoc, getDoc, updateDoc, deleteDoc } from "firebase/firestore";
 
-export const getUserData = async (uid: string) => {
-  const docRef = doc(db, "users", uid);
-  const snapshot = await getDoc(docRef);
-  return snapshot.exists() ? snapshot.data() : null;
+// Create: Add new user
+export const createUserProfile = async (uid: string, userData: any) => {
+  await setDoc(doc(db, "users", uid), userData);
 };
 
-export const updateUserData = async (uid: string, data: any) => {
+// Read: Get user profile
+export const getUserProfile = async (uid: string) => {
   const docRef = doc(db, "users", uid);
-  await updateDoc(docRef, data);
+  const docSnap = await getDoc(docRef);
+  return docSnap.exists() ? docSnap.data() : null;
 };
 
-export const deleteUserData = async (uid: string) => {
+// Update: Edit user profile
+export const updateUserProfile = async (uid: string, updatedData: any) => {
+  const docRef = doc(db, "users", uid);
+  await updateDoc(docRef, updatedData);
+};
+
+// Delete: Remove user
+export const deleteUserProfile = async (uid: string) => {
   const docRef = doc(db, "users", uid);
   await deleteDoc(docRef);
 };
+
