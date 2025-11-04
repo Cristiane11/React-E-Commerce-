@@ -1,28 +1,75 @@
 import React, { useState } from "react";
-import { registerUser } from "../../firebase/authService";
+import { createUserWithEmailAndPassword } from "firebase/auth";
+import { useNavigate } from "react-router-dom";
+import { useDispatch } from "react-redux";
+import { auth } from "../../firebase/firebaseConfig";
+import { createUserProfile } from "../../firebase/userService";
+import { setUser } from "../../features/userSlice";
 
 const RegisterForm: React.FC = () => {
-  const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [loading, setLoading] = useState(false);
+  const navigate = useNavigate();
+  const dispatch = useDispatch();
 
   const handleRegister = async (e: React.FormEvent) => {
     e.preventDefault();
+    setLoading(true);
+
     try {
-      await registerUser(email, password, name);
-      alert("Registration successful!");
+      // Create user with Firebase Auth
+      const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+      const user = userCredential.user;
+
+      //  Create Firestore document for new user
+      await createUserProfile(user.uid, {
+        email: user.email,
+        createdAt: new Date().toISOString(),
+      });
+
+      //  Save user info in Redux
+      dispatch(
+        setUser({
+          uid: user.uid,
+          email: user.email,
+          name: user.displayName || "",
+        })
+      );
+
+      // Redirect to profile after registration
+      navigate("/profile");
     } catch (err) {
-      alert("Error: " + (err as Error).message);
+      console.error("Register error:", err);
+      alert("Failed to register user. Please try again.");
+    } finally {
+      setLoading(false);
     }
   };
 
   return (
     <form onSubmit={handleRegister}>
       <h2>Register</h2>
-      <input placeholder="Name" value={name} onChange={e => setName(e.target.value)} />
-      <input placeholder="Email" type="email" value={email} onChange={e => setEmail(e.target.value)} />
-      <input placeholder="Password" type="password" value={password} onChange={e => setPassword(e.target.value)} />
-      <button type="submit">Register</button>
+
+      <input
+        type="email"
+        placeholder="Email"
+        value={email}
+        onChange={(e) => setEmail(e.target.value)}
+        required
+      />
+
+      <input
+        type="password"
+        placeholder="Password"
+        value={password}
+        onChange={(e) => setPassword(e.target.value)}
+        required
+      />
+
+      <button type="submit" disabled={loading}>
+        {loading ? "Creating account..." : "Register"}
+      </button>
     </form>
   );
 };

@@ -1,24 +1,27 @@
-// src/components/LoginForm.tsx
 import React, { useState } from "react";
-import { useDispatch } from "react-redux";
 import { signInWithEmailAndPassword } from "firebase/auth";
-import { auth } from "../../firebase/firebaseConfig"; // adjust path if needed
-import { setUser } from "../../features/userSlice";   // adjust path if needed
+import { useNavigate } from "react-router-dom";
+import { useDispatch } from "react-redux";
+import { auth } from "../../firebase/firebaseConfig";
+import { setUser } from "../../features/userSlice";
 
 const LoginForm: React.FC = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [loading, setLoading] = useState(false);
+  const navigate = useNavigate();
   const dispatch = useDispatch();
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
+    setLoading(true);
 
     try {
-      // Authenticate with Firebase
+      // 🔐 Sign in using Firebase Authentication
       const userCredential = await signInWithEmailAndPassword(auth, email, password);
       const user = userCredential.user;
 
-      // Update Redux user state
+      // 🧠 Store user in Redux state
       dispatch(
         setUser({
           uid: user.uid,
@@ -27,38 +30,40 @@ const LoginForm: React.FC = () => {
         })
       );
 
-      alert("Login successful!");
+      // ✅ Redirect to profile (with shopping cart)
+      navigate("/profile");
     } catch (err) {
-      alert("Login failed: " + (err as Error).message);
       console.error("Firebase login error:", err);
+      alert("Login failed. Please check your credentials.");
+    } finally {
+      setLoading(false);
     }
   };
 
   return (
-    <div className="login-container" style={{ maxWidth: "400px", margin: "0 auto" }}>
+    <form onSubmit={handleLogin}>
       <h2>Login</h2>
-      <form onSubmit={handleLogin} style={{ display: "flex", flexDirection: "column", gap: "10px" }}>
-        <input
-          type="email"
-          placeholder="Email"
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
-          required
-        />
 
-        <input
-          type="password"
-          placeholder="Password"
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
-          required
-        />
+      <input
+        type="email"
+        placeholder="Email"
+        value={email}
+        onChange={(e) => setEmail(e.target.value)}
+        required
+      />
 
-        <button type="submit" style={{ padding: "8px", cursor: "pointer" }}>
-          Login
-        </button>
-      </form>
-    </div>
+      <input
+        type="password"
+        placeholder="Password"
+        value={password}
+        onChange={(e) => setPassword(e.target.value)}
+        required
+      />
+
+      <button type="submit" disabled={loading}>
+        {loading ? "Logging in..." : "Login"}
+      </button>
+    </form>
   );
 };
 
