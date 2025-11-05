@@ -3,6 +3,7 @@ import { useQuery } from "@tanstack/react-query";
 import { getProducts, getCategories, getProductsByCategory } from "../api/api";
 import ProductList from "../components/ProductList";
 import CategorySelect from "../components/CategorySelect";
+import "./Home.css";
 
 const Home: React.FC = () => {
   const [selectedCategory, setSelectedCategory] = useState("");

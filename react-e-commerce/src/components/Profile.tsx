@@ -1,10 +1,10 @@
 import React, { useEffect, useState } from "react";
 import { useSelector } from "react-redux";
-import { RootState } from "./../app/store";
+import type { RootState } from "./../app/store";
 import { getUserProfile, updateUserProfile, deleteUserProfile } from "../firebase/userService";
 
 const Profile: React.FC = () => {
-  const user = useSelector((state: RootState) => state.user.user);
+  const user = useSelector((state: RootState) => state.user);
   const [profile, setProfile] = useState<any>(null);
 
   useEffect(() => {

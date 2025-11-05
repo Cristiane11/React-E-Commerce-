@@ -9,19 +9,21 @@ const LoginForm: React.FC = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(""); // optional error state
   const navigate = useNavigate();
   const dispatch = useDispatch();
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
+    setError("");
 
     try {
-      // 🔐 Sign in using Firebase Authentication
+    
       const userCredential = await signInWithEmailAndPassword(auth, email, password);
       const user = userCredential.user;
 
-      // 🧠 Store user in Redux state
+      
       dispatch(
         setUser({
           uid: user.uid,
@@ -30,11 +32,11 @@ const LoginForm: React.FC = () => {
         })
       );
 
-      // ✅ Redirect to profile (with shopping cart)
+    
       navigate("/profile");
-    } catch (err) {
+    } catch (err: any) {
       console.error("Firebase login error:", err);
-      alert("Login failed. Please check your credentials.");
+      setError(err.message || "Login failed. Please check your credentials.");
     } finally {
       setLoading(false);
     }
@@ -43,6 +45,8 @@ const LoginForm: React.FC = () => {
   return (
     <form onSubmit={handleLogin}>
       <h2>Login</h2>
+
+      {error && <p style={{ color: "red" }}>{error}</p>} {/* show error */}
 
       <input
         type="email"

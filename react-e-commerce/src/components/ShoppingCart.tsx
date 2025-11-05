@@ -1,34 +1,42 @@
-// src/components/ShoppingCart.tsx
-import { createOrder } from "../firebase/orderService";
+import React from "react";
 import { useSelector, useDispatch } from "react-redux";
-import { RootState } from "../app/store";
-import { clearCart } from "../features/cartSlice";
+import type { RootState } from "../app/store";
+import { removeFromCart, clearCart } from "../features/cartSlice";
 
 const ShoppingCart: React.FC = () => {
   const items = useSelector((state: RootState) => state.cart.items);
-  // RootState currently doesn't include a 'user' slice; use a relaxed selector type here
-  const user = useSelector((state: any) => state?.user?.user);
   const dispatch = useDispatch();
 
-  const handleCheckout = async () => {
-    if (!user) {
-      alert("Please login to checkout.");
-      return;
-    }
-    try {
-      await createOrder(user.uid, items);
-      dispatch(clearCart());
-      alert("Order placed successfully!");
-    } catch (err) {
-      console.error("Checkout error:", err);
-      alert("Checkout failed.");
-    }
+  const totalPrice = items.reduce((sum, item) => sum + item.price * item.count, 0);
+
+  const handleCheckout = () => {
+    // Here you can also integrate Firebase order creation
+    dispatch(clearCart());
+    alert("Checkout successful!");
   };
 
   return (
     <div>
-      {/* ...cart UI... */}
-      <button onClick={handleCheckout}>Checkout</button>
+      <h2>Shopping Cart</h2>
+      {items.length === 0 ? (
+        <p>Your cart is empty.</p>
+      ) : (
+        <>
+          <ul>
+            {items.map((item) => (
+              <li key={item.id}>
+                {item.title} x {item.count} - ${item.price.toFixed(2)}
+                <button onClick={() => dispatch(removeFromCart(item.id))}>
+                  Remove
+                </button>
+              </li>
+            ))}
+          </ul>
+          <p>Total Items: {items.reduce((sum, i) => sum + i.count, 0)}</p>
+          <p>Total Price: ${totalPrice.toFixed(2)}</p>
+          <button onClick={handleCheckout}>Checkout</button>
+        </>
+      )}
     </div>
   );
 };
