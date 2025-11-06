@@ -1,13 +1,15 @@
-export default {
-  preset: 'ts-jest',
-  testEnvironment: 'jsdom',
-  moduleDirectories: ['node_modules', 'src'],
-  setupFilesAfterEnv: ['<rootDir>/src/setupTests.ts'],
+const jestConfig = {
+  preset: "ts-jest",
+  testEnvironment: "jsdom",
+  moduleDirectories: ["node_modules", "src"],
+  setupFilesAfterEnv: ["@testing-library/jest-dom"],
   transform: {
-    '^.+\\.(ts|tsx)$': 'ts-jest',
+    "^.+\\.tsx?$": "ts-jest",
   },
   moduleNameMapper: {
-    '\\.(css|less|scss|sass)$': 'identity-obj-proxy',
-    '\\.(gif|eot|svg|png|jpg|ttf|woff|woff2)$': '<rootDir>/__mocks__/fileMock.js',
+    "\\.(gif|eot|svg|png|jpg|ttf|woff|woff2)$": "<rootDir>/__mocks__/fileMock.js",
+    "\\.(css|less|scss|sass)$": "identity-obj-proxy",
   },
 };
+
+export default jestConfig;
