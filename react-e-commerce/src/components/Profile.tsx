@@ -1,16 +1,29 @@
 import React, { useEffect, useState } from "react";
 import { useSelector } from "react-redux";
 import type { RootState } from "./../app/store";
-import { getUserProfile, updateUserProfile, deleteUserProfile } from "../firebase/userService";
+import {
+  getUserProfile,
+  updateUserProfile,
+  deleteUserProfile,
+} from "../firebase/userService";
 
 const Profile: React.FC = () => {
-  const user = useSelector((state: RootState) => state.user);
+  // ✅ your Redux state shape is { user: { uid, email, name } }
+  const user = useSelector((state: RootState) => state.user.user);
   const [profile, setProfile] = useState<any>(null);
+  const [loading, setLoading] = useState(true);
 
+  // ✅ Load profile from Firestore
   useEffect(() => {
-    if (user?.uid) {
-      getUserProfile(user.uid).then(setProfile);
-    }
+    const fetchProfile = async () => {
+      if (user?.uid) {
+        const data = await getUserProfile(user.uid);
+        setProfile(data || { name: "", address: "" });
+      }
+      setLoading(false);
+    };
+
+    fetchProfile();
   }, [user]);
 
   const handleUpdate = async () => {
@@ -27,21 +40,29 @@ const Profile: React.FC = () => {
     }
   };
 
-  if (!user) return <p>Please log in to view your profile.</p>;
+
+  if (!user?.uid) {
+    return <p>Please log in to view your profile.</p>;
+  }
+
+  if (loading) return <p>Loading profile...</p>;
 
   return (
     <div>
       <h2>Profile</h2>
+
       <input
         value={profile?.name || ""}
         onChange={(e) => setProfile({ ...profile, name: e.target.value })}
         placeholder="Name"
       />
+
       <input
         value={profile?.address || ""}
         onChange={(e) => setProfile({ ...profile, address: e.target.value })}
         placeholder="Address"
       />
+
       <button onClick={handleUpdate}>Save Changes</button>
       <button onClick={handleDelete}>Delete Account</button>
     </div>
